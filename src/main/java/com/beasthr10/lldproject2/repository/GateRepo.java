@@ -31,7 +31,7 @@ public class GateRepo {
 
 
 
-    public Gate saveGate(Gate gate) {
+    public Gate createGate(Gate gate) {
         if (gate == null) {
             return null;
         }

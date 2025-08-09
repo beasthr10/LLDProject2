@@ -2,8 +2,7 @@ package com.beasthr10.lldproject2.services;
 
 import com.beasthr10.lldproject2.builder.TicketMapper;
 import com.beasthr10.lldproject2.dto.TicketResponseDTO;
-import com.beasthr10.lldproject2.models.ParkingLot;
-import com.beasthr10.lldproject2.models.Vehicle;
+import com.beasthr10.lldproject2.models.*;
 import com.beasthr10.lldproject2.repository.GateRepo;
 import com.beasthr10.lldproject2.repository.ParkingLotRepo;
 import com.beasthr10.lldproject2.repository.TicketRepo;
@@ -13,8 +12,11 @@ public class TicketServiceImpl implements iTicketService{
     private TicketMapper mapper;
     private ParkingLotRepo parkingLotRepo;
     private GateRepo gateRepo;
+    private iSpotAssignmentStrategy spotAssignmentStrategy;
 
-    public TicketServiceImpl(TicketRepo ticketRepo, TicketMapper mapper, ParkingLotRepo parkingLotRepo, GateRepo gateRepo) {
+    public TicketServiceImpl(TicketRepo ticketRepo, TicketMapper mapper, ParkingLotRepo parkingLotRepo, GateRepo gateRepo,
+                             iSpotAssignmentStrategy spotAssignmentStrategy) {
+        this.spotAssignmentStrategy = spotAssignmentStrategy;
         this.ticketRepo = ticketRepo;
         this.mapper = mapper;
         this.parkingLotRepo = parkingLotRepo;
@@ -32,6 +34,26 @@ public class TicketServiceImpl implements iTicketService{
         if(parkingLot==null){
             throw new IllegalArgumentException("Parking lot not found");
         }
+        Gate gate = gateRepo.getGateById(gateId);
+        if(gate==null){
+            throw new IllegalArgumentException("Gate not found");
+        }
+        // Find a parking spot using the strategy
+        ParkingSpot parkingSpot = spotAssignmentStrategy.findParkingSpot(vehicleNumber.getVehicleType(), parkingLot);
+        if(parkingSpot==null){
+            throw new RuntimeException("No available parking spot found for vehicle type: " + vehicleNumber.getVehicleType());
+        }
+        // Create a ticket
+        Ticket ticket = new Ticket(vehicleNumber, gate, gate.getCurrentOperator(), parkingSpot);
+        // Save the ticket in the repository
+        Ticket generateTicket = ticketRepo.createTicket(ticket);
+        if(generateTicket==null){
+            throw new RuntimeException("Ticket generation failed");
+        }
+        // Map the ticket to a response DTO
+        TicketResponseDTO responseDTO = mapper.toResponseDTO(generateTicket);
+
+
 
 
 

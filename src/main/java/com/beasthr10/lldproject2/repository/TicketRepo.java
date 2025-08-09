@@ -31,7 +31,7 @@ public class TicketRepo {
 
 
 
-    public Ticket saveTicket(Ticket ticket) {
+    public Ticket createTicket(Ticket ticket) {
         if (ticket == null) {
             return null;
         }

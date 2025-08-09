@@ -16,8 +16,8 @@ public class TicketController {
     //This method creating a ticket and assign a spot
     public TicketResponseDTO generateTicket(TicketRequestDTO dto) {
         // Validate the request
-        TicketResponseDTO ticket = ticketService.generateTicket(dto.getVehicle(),dto.getGateId(),dto.getParkingLotId());
-        return ticket;
+        TicketResponseDTO genTicket = ticketService.generateTicket(dto.getVehicle(),dto.getGateId(),dto.getParkingLotId());
+        return genTicket;
     }
 
 
